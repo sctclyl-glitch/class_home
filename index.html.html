@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>분수의 덧셈과 뺄셈 퀴즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#ff9ec4; --pink-d:#ff6fa5;
+    --purple:#b39ddb; --blue:#7ecbff; --mint:#8ee6c8;
+    --yellow:#ffe08a; --orange:#ffb877;
+    --good:#3fbf7f; --good-bg:#dcfce7;
+    --bad:#ff7a7a; --bad-bg:#ffe3e3;
+    --ink:#5b4a63; --muted:#a08fae; --card:#fffdfa; --line:#ffe1ee;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; font-family:'Jua',sans-serif; color:var(--ink);
+    background:
+      radial-gradient(circle at 15% 20%, #ffe6f2 0, transparent 40%),
+      radial-gradient(circle at 85% 15%, #e3f2ff 0, transparent 40%),
+      radial-gradient(circle at 50% 100%, #e6fff4 0, transparent 45%),
+      linear-gradient(160deg,#fff5fb,#eef7ff);
+    display:flex; justify-content:center; padding:20px 16px 70px; overflow-x:hidden;
+  }
+  /* 둥둥 떠다니는 배경 장식 */
+  .deco{position:fixed; font-size:2rem; opacity:.55; pointer-events:none; z-index:0;
+    animation:float 6s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-18px) rotate(8deg);}}
+  .wrap{width:100%; max-width:560px; position:relative; z-index:1;}
+
+  header{text-align:center; margin-bottom:14px;}
+  .mascot{font-size:3.4rem; display:inline-block; animation:bob 2.2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-8px) rotate(4deg);}}
+  header h1{font-size:1.75rem; margin:2px 0 4px; color:var(--pink-d);
+    text-shadow:2px 2px 0 #fff, 3px 3px 0 rgba(255,111,165,.25);}
+  header p{margin:0; color:var(--muted); font-size:1rem;}
+
+  .progress-bar{height:16px; background:#ffe9f3; border:2px solid #ffd0e4; border-radius:99px;
+    overflow:hidden; margin:16px 0 6px; position:relative;}
+  .progress-fill{height:100%; width:0; border-radius:99px;
+    background:linear-gradient(90deg,#ffd36e,#ff9ec4,#b39ddb); transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+  .progress-text{text-align:center; font-size:.95rem; color:var(--muted); margin-bottom:14px;}
+
+  .card{
+    background:var(--card); border:3px solid #ffe1ee; border-radius:32px;
+    padding:26px 22px; box-shadow:0 14px 0 rgba(255,158,196,.18), 0 20px 40px rgba(179,157,219,.18);
+    position:relative;
+  }
+  .card::before{content:"⭐"; position:absolute; top:-16px; left:-10px; font-size:1.6rem; transform:rotate(-15deg);}
+  .card::after{content:"🌈"; position:absolute; top:-14px; right:-8px; font-size:1.6rem;}
+
+  .qnum{display:inline-block; background:linear-gradient(90deg,#ffd36e,#ffb877); color:#fff;
+    font-size:1rem; padding:6px 18px; border-radius:99px; margin-bottom:14px;
+    box-shadow:0 3px 0 rgba(255,150,80,.35);}
+  .question{font-size:2.2rem; text-align:center; margin:10px 0 20px; letter-spacing:1px; color:#6b5b74;}
+  .frac{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 3px;}
+  .frac .num{border-bottom:3px solid var(--pink-d); padding:0 7px; line-height:1.15;}
+  .frac .den{padding:0 7px; line-height:1.15;}
+  .whole{vertical-align:middle; margin-right:3px;}
+
+  .hint{text-align:center; color:var(--muted); font-size:.95rem; margin:-6px 0 16px; line-height:1.5;}
+  .hint b{color:var(--pink-d);}
+  .answer-row{display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap;}
+  input[type=text]{
+    font-family:'Jua',sans-serif; font-size:1.3rem; padding:13px 16px;
+    border:3px solid #ffd0e4; border-radius:18px; width:190px; text-align:center;
+    outline:none; transition:border .2s, transform .1s; color:var(--ink); background:#fffafd;
+  }
+  input[type=text]:focus{border-color:var(--pink-d); transform:scale(1.03);}
+  input[type=text]::placeholder{color:#e0b8cd;}
+
+  button{font-family:'Jua',sans-serif; font-size:1.15rem; cursor:pointer; border:none;
+    border-radius:18px; padding:13px 22px; transition:transform .08s, filter .2s; color:#fff;}
+  button:active{transform:translateY(2px) scale(.98);}
+  .btn-check{background:linear-gradient(90deg,#ff9ec4,#ff6fa5); box-shadow:0 5px 0 #f0568f;}
+  .btn-check:hover{filter:brightness(1.05);}
+  .btn-next{background:linear-gradient(90deg,#8ee6c8,#3fbf7f); box-shadow:0 5px 0 #2ea169;
+    margin-top:18px; width:100%;}
+  .btn-restart{background:linear-gradient(90deg,#7ecbff,#5aa9f0); box-shadow:0 5px 0 #3d87d6; margin-top:16px;}
+
+  .feedback{margin-top:18px; padding:15px 16px; border-radius:20px; text-align:center;
+    font-size:1.2rem; display:none;}
+  .feedback.show{display:block; animation:pop .35s cubic-bezier(.34,1.56,.64,1);}
+  .feedback.ok{background:var(--good-bg); color:var(--good); border:2px dashed #86e0ac;}
+  .feedback.no{background:var(--bad-bg); color:#e05a5a; border:2px dashed #ffb3b3;}
+  @keyframes pop{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .wiggle{animation:wiggle .4s ease;}
+  @keyframes wiggle{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(8px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
+
+  .result{text-align:center; display:none;}
+  .result.show{display:block; animation:pop .45s cubic-bezier(.34,1.56,.64,1);}
+  .result .emoji{font-size:4.6rem; margin-bottom:4px; animation:bob 2s ease-in-out infinite;}
+  .result h2{font-size:2rem; color:var(--pink-d); margin:6px 0;
+    text-shadow:2px 2px 0 #fff;}
+  .result .score{font-size:1.4rem; color:#6b5b74; margin:10px 0 14px;}
+  .result .stars{font-size:2rem; margin:6px 0 10px; letter-spacing:4px;}
+  .result p{color:var(--muted); font-size:1.05rem; line-height:1.6;}
+  .confetti{position:fixed; top:-10px; width:12px; height:18px; border-radius:3px; opacity:.95; z-index:5; pointer-events:none;}
+</style>
+</head>
+<body>
+<!-- 배경 장식 -->
+<div class="deco" style="top:12%; left:6%; animation-delay:0s;">🍭</div>
+<div class="deco" style="top:70%; left:8%; animation-delay:1.2s;">🌸</div>
+<div class="deco" style="top:30%; right:6%; animation-delay:.6s;">☁️</div>
+<div class="deco" style="top:80%; right:9%; animation-delay:1.8s;">🎈</div>
+<div class="deco" style="top:50%; left:3%; animation-delay:2.4s;">⭐</div>
+
+<div class="wrap">
+  <header>
+    <div class="mascot">🦊</div>
+    <h1>분수 덧셈·뺄셈 대모험</h1>
+    <p>초등학교 5학년 · 5문제 · 함께 풀어봐요!</p>
+  </header>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">1 / 5 문제</div>
+
+  <div class="card" id="quizCard">
+    <span class="qnum" id="qnum">문제 1</span>
+    <div class="question" id="question"></div>
+    <div class="hint">답을 분수로 써 볼까요? 예: <b>5/6</b> · 대분수는 <b>1 5/6</b> 처럼!</div>
+    <div class="answer-row">
+      <input type="text" id="answer" placeholder="예: 5/6" autocomplete="off">
+      <button class="btn-check" id="checkBtn">확인!</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn-next" id="nextBtn" style="display:none;">다음 문제 →</button>
+  </div>
+
+  <div class="card result" id="resultCard">
+    <div class="emoji" id="resultEmoji">🎉</div>
+    <h2 id="resultTitle"></h2>
+    <div class="stars" id="resultStars"></div>
+    <div class="score" id="resultScore"></div>
+    <p id="resultMsg"></p>
+    <button class="btn-restart" id="restartBtn">🔄 다시 도전하기</button>
+  </div>
+</div>
+
+<script>
+const QUESTION_COUNT = 5;
+let quiz = [];
+let idx = 0, score = 0, solved = false;
+const $ = id => document.getElementById(id);
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a||1; }
+function lcm(a,b){ return a*b/gcd(a,b); }
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function reduce(n,d){ const g=gcd(n,d)||1; return [n/g, d/g]; }
+
+// 분수/대분수 화면 표시용 HTML
+function fracHTML(n,d){ return "<div class='frac'><span class='num'>"+n+"</span><span class='den'>"+d+"</span></div>"; }
+function mixedHTML(w,n,d){ return "<span class='whole'>"+w+"</span>"+fracHTML(n,d); }
+
+// value([n,d]) → 힌트용 답 문자열 (예: "7/12", "3 5/6")
+function answerString(v){
+  let [n,d]=v;
+  if(d===1) return ""+n;
+  if(n>d){ const w=Math.floor(n/d); const r=n-w*d; return r===0 ? ""+w : w+" "+r+"/"+d; }
+  return n+"/"+d;
+}
+
+// ── 랜덤 문제 생성기 ──
+function genAdd(){
+  const pool=[2,3,4,5,6,8,10,12];
+  let d1,d2,n1,n2;
+  do{ d1=pick(pool); d2=pick(pool); }while(d1===d2 || lcm(d1,d2)>24);
+  n1=randInt(1,d1-1); n2=randInt(1,d2-1);
+  const value=reduce(n1*d2+n2*d1, d1*d2);
+  return { a: fracHTML(n1,d1)+" + "+fracHTML(n2,d2), value };
+}
+function genSub(){
+  const pool=[2,3,4,5,6,8,10,12];
+  let d1,d2,n1,n2,v1,v2;
+  do{
+    do{ d1=pick(pool); d2=pick(pool); }while(d1===d2 || lcm(d1,d2)>24);
+    n1=randInt(1,d1-1); n2=randInt(1,d2-1);
+    v1=n1/d1; v2=n2/d2;
+  }while(v1===v2);
+  if(v1<v2){ [d1,d2]=[d2,d1]; [n1,n2]=[n2,n1]; }  // 큰 값이 앞으로 (결과 양수)
+  const value=reduce(n1*d2-n2*d1, d1*d2);
+  return { a: fracHTML(n1,d1)+" − "+fracHTML(n2,d2), value };
+}
+function genMixed(){
+  const pool=[2,3,4,6];
+  let d1,d2;
+  do{ d1=pick(pool); d2=pick(pool); }while(lcm(d1,d2)>12);
+  const w1=randInt(1,3), w2=randInt(1,2);
+  const n1=randInt(1,d1-1), n2=randInt(1,d2-1);
+  const value=reduce((w1*d1+n1)*d2+(w2*d2+n2)*d1, d1*d2);
+  return { a: mixedHTML(w1,n1,d1)+" + "+mixedHTML(w2,n2,d2), value };
+}
+
+// 매 판마다 문제 종류를 섞어서 5개 생성 (덧셈·뺄셈·대분수 골고루)
+function buildQuiz(){
+  const types=[genAdd, genSub, genAdd, genSub, genMixed];
+  for(let i=types.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [types[i],types[j]]=[types[j],types[i]]; }
+  quiz = types.map(fn=>{ const q=fn(); q.answer=answerString(q.value); return q; });
+}
+
+function parseFraction(str){
+  str = str.trim().replace(/\s+/g,' ');
+  if(str==="") return null;
+  let whole=0, num=0, den=1, m;
+  if((m = str.match(/^(-?\d+)\s+(\d+)\/(\d+)$/))){ whole=+m[1]; num=+m[2]; den=+m[3]; }
+  else if((m = str.match(/^(-?\d+)\/(\d+)$/))){ num=+m[1]; den=+m[2]; }
+  else if((m = str.match(/^(-?\d+)$/))){ whole=+m[1]; }
+  else return null;
+  if(den===0) return null;
+  const sign = (whole<0 || num<0) ? -1 : 1;
+  let n = Math.abs(whole)*den + Math.abs(num);
+  n *= sign;
+  const g = gcd(n,den);
+  return [n/g, den/g];
+}
+function sameValue(a,b){
+  if(!a) return false;
+  const ga = gcd(a[0],a[1]), gb = gcd(b[0],b[1]);
+  return (a[0]/ga)===(b[0]/gb) && (a[1]/ga)===(b[1]/gb);
+}
+
+function render(){
+  solved = false;
+  const q = quiz[idx];
+  $("qnum").textContent = "문제 " + (idx+1);
+  $("question").innerHTML = q.a + " = ?";
+  $("answer").value = "";
+  $("feedback").className = "feedback";
+  $("feedback").innerHTML = "";
+  $("nextBtn").style.display = "none";
+  $("checkBtn").style.display = "";
+  $("answer").disabled = false;
+  $("progressFill").style.width = (idx/quiz.length*100) + "%";
+  $("progressText").textContent = (idx+1) + " / " + quiz.length + " 문제";
+  $("answer").focus();
+}
+
+function check(){
+  if(solved) return;
+  const q = quiz[idx];
+  const parsed = parseFraction($("answer").value);
+  const fb = $("feedback");
+  if(!parsed){
+    fb.className = "feedback show no wiggle";
+    fb.innerHTML = "🤔 분수로 써 볼까요? 예: <b>"+q.answer+"</b>";
+    setTimeout(()=>fb.classList.remove("wiggle"),400);
+    return;
+  }
+  if(sameValue(parsed, q.value)){
+    solved = true;
+    score++;
+    const cheers = ["🎉 정답이에요! 최고예요!","⭐ 딩동댕! 아주 잘했어요!","🌈 우와~ 완벽해요!","👏 맞았어요! 똑똑이!"];
+    fb.className = "feedback show ok";
+    fb.innerHTML = cheers[idx % cheers.length];
+    popStars();
+    $("checkBtn").style.display = "none";
+    $("answer").disabled = true;
+    $("nextBtn").textContent = (idx < quiz.length-1) ? "다음 문제 →" : "결과 보기 🏆";
+    $("nextBtn").style.display = "";
+  } else {
+    fb.className = "feedback show no wiggle";
+    fb.innerHTML = "❌ 앗, 아쉬워요! 다시 한 번 도전! (약분도 잊지 마세요 😉)";
+    setTimeout(()=>fb.classList.remove("wiggle"),400);
+    $("answer").focus();
+    $("answer").select();
+  }
+}
+
+function next(){
+  if(idx < quiz.length-1){ idx++; render(); }
+  else showResult();
+}
+
+function showResult(){
+  $("progressFill").style.width = "100%";
+  $("quizCard").style.display = "none";
+  const r = $("resultCard");
+  r.classList.add("show");
+  const stars = "⭐".repeat(score) + "☆".repeat(quiz.length-score);
+  $("resultStars").textContent = stars;
+  $("resultScore").textContent = quiz.length + "문제 중 " + score + "문제 정답!";
+  if(score===quiz.length){
+    $("resultEmoji").textContent = "🏆";
+    $("resultTitle").textContent = "만점이에요! 대단해요!";
+    $("resultMsg").textContent = "분수의 덧셈과 뺄셈을 완벽하게 익혔어요. 진짜 최고! 🎊";
+    launchConfetti();
+  } else if(score >= 3){
+    $("resultEmoji").textContent = "😸";
+    $("resultTitle").textContent = "정말 잘했어요!";
+    $("resultMsg").textContent = "조금만 더 연습하면 만점도 문제없어요. 다시 도전해 볼까요?";
+  } else {
+    $("resultEmoji").textContent = "🐣";
+    $("resultTitle").textContent = "좋은 출발이에요!";
+    $("resultMsg").textContent = "통분과 약분을 한 번 더 살펴보면 훨씬 쉬워질 거예요. 파이팅! 💪";
+  }
+}
+
+function restart(){
+  idx=0; score=0;
+  buildQuiz();
+  $("resultCard").classList.remove("show");
+  $("quizCard").style.display = "";
+  render();
+}
+
+// 정답 시 작은 별 튀어오르기
+function popStars(){
+  const marks=["⭐","✨","💖","🌟"];
+  for(let i=0;i<10;i++){
+    const s=document.createElement("div");
+    s.className="confetti";
+    s.style.background="transparent";
+    s.style.width="auto"; s.style.height="auto"; s.style.fontSize="1.3rem";
+    s.textContent=marks[i%marks.length];
+    s.style.left=(40+Math.random()*20)+"vw";
+    s.style.top="55vh";
+    const dx=(Math.random()-.5)*220, dy=-(120+Math.random()*160);
+    s.style.transition="transform 1s ease-out, opacity 1s ease-out";
+    document.body.appendChild(s);
+    requestAnimationFrame(()=>{ s.style.transform="translate("+dx+"px,"+dy+"px) rotate("+(Math.random()*360)+"deg)"; s.style.opacity="0"; });
+    setTimeout(()=>s.remove(),1050);
+  }
+}
+
+// 만점 색종이
+function launchConfetti(){
+  const colors=["#ff9ec4","#7ecbff","#8ee6c8","#ffd36e","#b39ddb","#ffb877"];
+  for(let i=0;i<90;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=colors[i%colors.length];
+    c.style.transform="rotate("+Math.random()*360+"deg)";
+    const dur=2.2+Math.random()*2;
+    c.style.transition="top "+dur+"s linear, opacity "+dur+"s linear";
+    document.body.appendChild(c);
+    requestAnimationFrame(()=>{ c.style.top=(100+Math.random()*20)+"vh"; c.style.opacity="0"; });
+    setTimeout(()=>c.remove(), dur*1000+100);
+  }
+}
+
+$("checkBtn").addEventListener("click", check);
+$("nextBtn").addEventListener("click", next);
+$("restartBtn").addEventListener("click", restart);
+$("answer").addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ solved ? next() : check(); }
+});
+
+buildQuiz();
+render();
+</script>
+</body>
+</html>
